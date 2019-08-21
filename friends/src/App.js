@@ -3,8 +3,8 @@ import './App.css';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import Login from './components/Login';
-// import Friends from './components/Friends';
-import CopyFriendForm from './components/Friends';
+// import FriendsList from './components/Friends';
+import CopyFriendForm from './components/FriendForm';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
