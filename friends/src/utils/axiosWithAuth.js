@@ -8,3 +8,16 @@ export const axiosWithAuth = () => {
         }
     });
 };
+
+/*
+HENRY's:
+
+export const axiosWithAuth = () => {
+    //returns axios.create() object w/ its configuration options already set
+    return axios.create({
+        headers: {
+            Authorization: localStorage.getItem('token')
+        }
+    });
+};
+*/

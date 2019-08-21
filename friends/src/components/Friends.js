@@ -1,68 +1,60 @@
 import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
 import { axiosWithAuth } from '../utils/axiosWithAuth';
+import FriendForm from './FriendForm';
+import { Route } from 'react-router-dom';
 
-class FriendsList extends React.Component {
-    state = {
-        friendsList: []
-    };
+const Friends = (props) => {
+    const [friendsList, setFriendsList] = useState([]);
 
-    componentDidMount() {
-        this.getData();
-    };
-
-    getData = () => {
-        axiosWithAuth()
-            .get('http://localhost:5000/api/friends')
+    const getFriends = () => {
+        axiosWithAuth().get('http://localhost:5000/api/friends')
             .then(res => {
-                this.setState({
-                    friendsList: res.data
-                });
+                setFriendsList(res.data);
+            })
+            .catch(err => console.log(err.response));
+    };
+
+    useEffect(() => {
+        getFriends();
+    }, []);
+
+    const addFriend = friend => {
+        axiosWithAuth().post('http://localhost:5000/api/friends', friend)
+            .then(res => setFriendsList(res.data))
+            .catch(err => console.log(err.response))
+    };
+
+    const editFriend = friend => {
+        axiosWithAuth().put(`http://localhost:5000/api/friends/${friend.id}`, friend)
+            .then(res => {
+                setFriendsList(res.data);
+                props.history.push('/friends');
             })
             .catch(err => console.log(err.response))
     };
 
-    render() {
-        return (
-            <div>
-                {this.state.friendsList.length > 0 ? this.state.friendsList.map(friend => {
-                    return (
-                        <p>{friend.name}</p>
-                        <p>{friend.age}</p>
-                        <p>{friend.email}</p>
-                    ) : 'None'
-                })}
-            </div>
-        );
+    const deleteFriend = id => {
+        axiosWithAuth().delete(`http://localhost:5000/api/friends/${id}`)
+            .then(res => setFriendsList(res.data))
+            .catch(err => console.log(err.response));
     };
+
+    return (
+        <div>
+            <h2>Friends</h2>
+            <Route exact path='/friends' render={props => <FriendForm {...props} submitFriend={addFriend} />} />
+            {friendsList.map(friend => {
+                return <FriendCard key={friend.id}
+                    friend={friend}
+                    deleteFriend={deleteFriend} />;
+            })}
+            <Route path='/friends/edit/:id' render={props => {
+                console.log(props);
+                const currentFriend = friendsList.find(friend => friend.id === props.match.params.id);
+                return <FriendForm {...props} submitFriend={editFriend} initialValues={currentFriend} />;
+            }} />
+        </div>
+    );
 };
 
-
-
-
-// class AddFriend extends React.Component {
-//     state = {
-//         newFriend: {
-//             name: '',
-//             age: '',
-//             email: ''
-//         }
-//     }
-
-//     handleChange = e => {
-//         this.setState({
-//             newFriend: {
-//                 ...this.state.newFriend,
-//                 [e.target.name]: e.target.value
-//             }
-//         })
-//     }
-
-//     handleSubmit = e => {
-//         e.preventDefault();
-//         console.log(this.state.newFriend);
-//         axiosWithAuth()
-//             .post('http://localhost:5000/api/friends', this.state.newFriend)
-//             .then(res => { })
-//     }
-// }
+export default Friends;
